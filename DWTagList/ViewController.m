@@ -15,14 +15,14 @@
 @implementation ViewController
 
 - (void)selectedTag:(NSString *)tagName{
-    
-    UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Message"
-                                                    message:[NSString stringWithFormat:@"You tapped tag %@", tagName]
-                                                   delegate:nil
-                                          cancelButtonTitle:@"Ok"
-                                          otherButtonTitles:nil];
-    [alert show];
+
 }
+
+- (void) selectedTagView:(DWTagView *)tagView {
+    [tagView setTextColor:[UIColor redColor]];
+    [tagView setNeedsDisplay];
+}
+
 
 - (void)viewDidLoad
 {
@@ -38,10 +38,6 @@
     [_tagList setTags:_array];
     [_tagList setTagDelegate:self];
 
-    // Customisation
-    [_tagList setCornerRadius:4.0f];
-    [_tagList setBorderColor:[UIColor lightGrayColor].CGColor];
-    [_tagList setBorderWidth:1.0f];
 
     [self.view addSubview:_tagList];
 }

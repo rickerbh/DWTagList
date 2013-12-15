@@ -7,6 +7,9 @@
 
 #import <UIKit/UIKit.h>
 
+@class DWTagView;
+@class DWTagAppearance;
+
 @protocol DWTagListDelegate <NSObject>
 
 @required
@@ -48,7 +51,19 @@
 - (void)display;
 - (CGSize)fittedSize;
 
+
 @end
+
+@interface DWTagAppearance : NSObject
+
+@property(nonatomic, assign) CGColorRef borderColor;
+@property(nonatomic, strong) UIColor *textShadowColor;
+@property(nonatomic, strong) UIColor *textColor;
+@property(nonatomic, strong) UIColor *backgroundColor;
+@property(nonatomic, assign) BOOL selected;
+
+@end
+
 
 @interface DWTagView : UIView
 
@@ -60,6 +75,7 @@
       constrainedToWidth:(CGFloat)maxWidth
                  padding:(CGSize)padding
             minimumWidth:(CGFloat)minimumWidth;
+
 - (void)setLabelText:(NSString*)text;
 - (void)setCornerRadius:(CGFloat)cornerRadius;
 - (void)setBorderColor:(CGColorRef)borderColor;

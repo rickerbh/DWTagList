@@ -9,21 +9,28 @@
 #import <QuartzCore/QuartzCore.h>
 
 #define CORNER_RADIUS 10.0f
-#define LABEL_MARGIN_DEFAULT 5.0f
-#define BOTTOM_MARGIN_DEFAULT 5.0f
+#define LABEL_MARGIN_DEFAULT 7.0f
+#define BOTTOM_MARGIN_DEFAULT 7.0f
 #define FONT_SIZE_DEFAULT 13.0f
 #define HORIZONTAL_PADDING_DEFAULT 7.0f
-#define VERTICAL_PADDING_DEFAULT 3.0f
-#define BACKGROUND_COLOR [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.00]
-#define TEXT_COLOR [UIColor blackColor]
-#define TEXT_SHADOW_COLOR [UIColor whiteColor]
-#define TEXT_SHADOW_OFFSET CGSizeMake(0.0f, 1.0f)
+#define VERTICAL_PADDING_DEFAULT 5.0f
+#define BACKGROUND_COLOR [UIColor clearColor]
+#define TEXT_COLOR [UIColor darkGrayColor]
+#define TEXT_SHADOW_COLOR [UIColor clearColor]
+#define TEXT_SHADOW_OFFSET CGSizeMake(0.0f, 0.0f)
 #define BORDER_COLOR [UIColor lightGrayColor].CGColor
 #define BORDER_WIDTH 1.0f
 #define HIGHLIGHTED_BACKGROUND_COLOR [UIColor colorWithRed:0.40 green:0.80 blue:1.00 alpha:0.5]
 #define DEFAULT_AUTOMATIC_RESIZE NO
+#define SELECTED_BACKGROUND_COLOR [UIColor colorWithRed:(51.0/255.0) green:(170.0/255.0) blue:(220.0/255.0) alpha:1.00]
+#define SELECTED_BORDER_COLOR [UIColor colorWithRed:(51.0/255.0) green:(170.0/255.0) blue:(220.0/255.0) alpha:1.00]
 
 @interface DWTagList()
+
+@property(nonatomic, strong) NSMutableDictionary *tagAppearanceLookup;
+
+@property(nonatomic, strong) UIColor *selectedBorderColor;
+@property(nonatomic, strong) UIColor *selectedBGColor;
 
 - (void)touchedTag:(id)sender;
 
@@ -53,6 +60,10 @@
         self.textColor = TEXT_COLOR;
         self.textShadowColor = TEXT_SHADOW_COLOR;
         self.textShadowOffset = TEXT_SHADOW_OFFSET;
+        self.selectedBGColor = SELECTED_BACKGROUND_COLOR;
+        self.selectedBorderColor = SELECTED_BORDER_COLOR;
+        
+        self.tagAppearanceLookup = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -74,6 +85,10 @@
         self.textColor = TEXT_COLOR;
         self.textShadowColor = TEXT_SHADOW_COLOR;
         self.textShadowOffset = TEXT_SHADOW_OFFSET;
+        self.selectedBGColor = SELECTED_BACKGROUND_COLOR;
+        self.selectedBorderColor = SELECTED_BORDER_COLOR;
+
+        self.tagAppearanceLookup = [[NSMutableDictionary alloc] init];
     }
     return self;
 }
@@ -156,6 +171,13 @@
             tagView = [[DWTagView alloc] init];
         }
         
+        DWTagAppearance *appearance = [self.tagAppearanceLookup objectForKey:text];
+        
+        if (!appearance)
+        {
+            appearance = [self createTagAppearance];
+            [self.tagAppearanceLookup setObject:appearance forKey:text];
+        }
         
         [tagView updateWithString:text
                            font:self.font
@@ -178,19 +200,13 @@
         previousFrame = tagView.frame;
         gotPreviousFrame = YES;
 
-        [tagView setBackgroundColor:[self getBackgroundColor]];
+        [tagView setBackgroundColor:appearance.backgroundColor];
         [tagView setCornerRadius:self.cornerRadius];
-        [tagView setBorderColor:self.borderColor];
+        [tagView setBorderColor:appearance.borderColor];
         [tagView setBorderWidth:self.borderWidth];
-        [tagView setTextColor:self.textColor];
-        [tagView setTextShadowColor:self.textShadowColor];
+        [tagView setTextColor:appearance.textColor];
+        [tagView setTextShadowColor:appearance.textShadowColor];
         [tagView setTextShadowOffset:self.textShadowOffset];
-
-        // Davide Cenzi, added gesture recognizer to label
-        UITapGestureRecognizer* gesture = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(touchedTag:)];
-        // if labelView is not set userInteractionEnabled, you must do so
-        [tagView setUserInteractionEnabled:YES];
-        [tagView addGestureRecognizer:gesture];
         
         [self addSubview:tagView];
 
@@ -204,6 +220,17 @@
 
     sizeFit = CGSizeMake(self.frame.size.width, previousFrame.origin.y + previousFrame.size.height + self.bottomMargin + 1.0f);
     self.contentSize = sizeFit;
+}
+
+-(DWTagAppearance*) createTagAppearance
+{
+    DWTagAppearance *appearance = [[DWTagAppearance alloc] init];
+    appearance.borderColor = BORDER_COLOR;
+    appearance.textColor = TEXT_COLOR;
+    appearance.textShadowColor = TEXT_SHADOW_COLOR;
+    appearance.backgroundColor = BACKGROUND_COLOR;
+    appearance.selected = NO;
+    return appearance;
 }
 
 - (CGSize)fittedSize
@@ -220,9 +247,15 @@
 - (void)touchUpInside:(id)sender
 {
     UIButton *button = (UIButton*)sender;
+    
     [[button superview] setBackgroundColor:[self getBackgroundColor]];
-    if(button && self.tagDelegate && [self.tagDelegate respondsToSelector:@selector(selectedTag:)])
-        [self.tagDelegate selectedTag:button.accessibilityLabel];
+    
+    NSString* tagText = button.accessibilityLabel;
+    
+    if(self.tagDelegate && [self.tagDelegate respondsToSelector:@selector(selectedTag:)])
+        [self.tagDelegate selectedTag:tagText];
+    
+    [self toggleTagSelection:tagText];
 }
 
 - (void)touchDragExit:(id)sender
@@ -289,8 +322,36 @@
     lblBackgroundColor = nil;
 }
 
+- (void) toggleTagSelection:(NSString*) tag
+{
+    DWTagAppearance *appearance = [self.tagAppearanceLookup objectForKey:tag];
+    BOOL selected = appearance.selected;
+    
+    if (selected)
+    {
+        appearance.borderColor = BORDER_COLOR;
+        appearance.textColor = TEXT_COLOR;
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = BACKGROUND_COLOR;
+        appearance.selected = NO;
+    }
+    else
+    {
+        appearance.borderColor = self.selectedBorderColor.CGColor;
+        appearance.textColor = [UIColor whiteColor];
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = self.selectedBGColor;
+        appearance.selected = YES;
+    }
+
+    [self setNeedsLayout];
+}
+
 @end
 
+@implementation DWTagAppearance
+
+@end
 
 @implementation DWTagView
 
