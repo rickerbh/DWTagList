@@ -35,7 +35,7 @@
                         @"Tag Label 3",
                         @"Tag Label 4",
                         @"Long long long long long long Tag", nil];
-    [_tagList setTags:_array];
+    [_tagList setTags:_array selectedTags:[NSArray arrayWithObjects:@"Foo", @"Tag Label 4", nil]];
     [_tagList setTagDelegate:self];
 
 

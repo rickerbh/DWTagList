@@ -27,6 +27,7 @@
 
 @interface DWTagList()
 
+@property(nonatomic, strong) NSSet *selectedTags;
 @property(nonatomic, strong) NSMutableDictionary *tagAppearanceLookup;
 
 @property(nonatomic, strong) UIColor *selectedBorderColor;
@@ -106,6 +107,12 @@
     }
 }
 
+- (void)setTags:(NSArray *)array selectedTags:(NSArray*) selectedTags
+{
+    self.selectedTags = [NSSet setWithArray:selectedTags];
+    [self setTags:array];
+}
+
 - (void)setTagBackgroundColor:(UIColor *)color
 {
     lblBackgroundColor = color;
@@ -175,7 +182,10 @@
         
         if (!appearance)
         {
-            appearance = [self createTagAppearance];
+            BOOL selected = [self.selectedTags containsObject:text];
+            
+            appearance = [self createTagAppearance:selected];
+            
             [self.tagAppearanceLookup setObject:appearance forKey:text];
         }
         
@@ -222,14 +232,27 @@
     self.contentSize = sizeFit;
 }
 
--(DWTagAppearance*) createTagAppearance
+-(DWTagAppearance*) createTagAppearance:(BOOL) selected
 {
     DWTagAppearance *appearance = [[DWTagAppearance alloc] init];
-    appearance.borderColor = BORDER_COLOR;
-    appearance.textColor = TEXT_COLOR;
-    appearance.textShadowColor = TEXT_SHADOW_COLOR;
-    appearance.backgroundColor = BACKGROUND_COLOR;
-    appearance.selected = NO;
+    
+    if (selected)
+    {
+        appearance.borderColor = self.selectedBorderColor.CGColor;
+        appearance.textColor = [UIColor whiteColor];
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = self.selectedBGColor;
+        appearance.selected = YES;
+    }
+    else
+    {
+        appearance.borderColor = BORDER_COLOR;
+        appearance.textColor = TEXT_COLOR;
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = BACKGROUND_COLOR;
+        appearance.selected = NO;
+    }
+
     return appearance;
 }
 

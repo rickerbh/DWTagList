@@ -48,6 +48,7 @@
 - (void)setTagBackgroundColor:(UIColor *)color;
 - (void)setTagHighlightColor:(UIColor *)color;
 - (void)setTags:(NSArray *)array;
+- (void)setTags:(NSArray *)array selectedTags:(NSArray*) selectedTags;
 - (void)display;
 - (CGSize)fittedSize;
 
