@@ -28,7 +28,7 @@
 
 @interface DWTagList () <DWTagViewDelegate>
 
-@property(nonatomic, strong) NSSet *selectedTags;
+@property(nonatomic, strong) NSMutableSet *selectedTags;
 @property(nonatomic, strong) NSMutableDictionary *tagAppearanceLookup;
 
 @property(nonatomic, strong) UIColor *selectedBorderColor;
@@ -109,7 +109,7 @@
 
 - (void)setTags:(NSArray *)array selectedTags:(NSArray*) selectedTags
 {
-    self.selectedTags = [NSSet setWithArray:selectedTags];
+    self.selectedTags = [NSMutableSet setWithArray:selectedTags];
     [self setTags:array];
 }
 
@@ -275,6 +275,7 @@
     BOOL selected = [self.selectedTags containsObject:tagText];
 
   if (selected) {
+    [self.selectedTags removeObject:tagText];
     if ([self.tagDelegate respondsToSelector:@selector(deselectedTag:tagIndex:)]) {
       [self.tagDelegate deselectedTag:tagText tagIndex:button.tag];
     }
@@ -283,6 +284,7 @@
       [self.tagDelegate deselectedTag:tagText];
     }
   } else {
+    [self.selectedTags addObject:tagText];
     if ([self.tagDelegate respondsToSelector:@selector(selectedTag:tagIndex:)]) {
       [self.tagDelegate selectedTag:tagText tagIndex:button.tag];
     }
