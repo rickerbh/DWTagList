@@ -9,22 +9,30 @@
 #import <QuartzCore/QuartzCore.h>
 
 #define CORNER_RADIUS 10.0f
-#define LABEL_MARGIN_DEFAULT 5.0f
-#define BOTTOM_MARGIN_DEFAULT 5.0f
+#define LABEL_MARGIN_DEFAULT 7.0f
+#define BOTTOM_MARGIN_DEFAULT 7.0f
 #define FONT_SIZE_DEFAULT 13.0f
 #define HORIZONTAL_PADDING_DEFAULT 7.0f
-#define VERTICAL_PADDING_DEFAULT 3.0f
-#define BACKGROUND_COLOR [UIColor colorWithRed:0.93 green:0.93 blue:0.93 alpha:1.00]
-#define TEXT_COLOR [UIColor blackColor]
-#define TEXT_SHADOW_COLOR [UIColor whiteColor]
-#define TEXT_SHADOW_OFFSET CGSizeMake(0.0f, 1.0f)
+#define VERTICAL_PADDING_DEFAULT 5.0f
+#define BACKGROUND_COLOR [UIColor clearColor]
+#define TEXT_COLOR [UIColor darkGrayColor]
+#define TEXT_SHADOW_COLOR [UIColor clearColor]
+#define TEXT_SHADOW_OFFSET CGSizeMake(0.0f, 0.0f)
 #define BORDER_COLOR [UIColor lightGrayColor].CGColor
 #define BORDER_WIDTH 1.0f
 #define HIGHLIGHTED_BACKGROUND_COLOR [UIColor colorWithRed:0.40 green:0.80 blue:1.00 alpha:0.5]
 #define DEFAULT_AUTOMATIC_RESIZE NO
+#define SELECTED_BACKGROUND_COLOR [UIColor colorWithRed:(51.0/255.0) green:(170.0/255.0) blue:(220.0/255.0) alpha:1.00]
+#define SELECTED_BORDER_COLOR [UIColor colorWithRed:(51.0/255.0) green:(170.0/255.0) blue:(220.0/255.0) alpha:1.00]
 #define DEFAULT_SHOW_TAG_MENU NO
 
 @interface DWTagList () <DWTagViewDelegate>
+
+@property(nonatomic, strong) NSSet *selectedTags;
+@property(nonatomic, strong) NSMutableDictionary *tagAppearanceLookup;
+
+@property(nonatomic, strong) UIColor *selectedBorderColor;
+@property(nonatomic, strong) UIColor *selectedBGColor;
 
 @end
 
@@ -51,6 +59,10 @@
         self.textColor = TEXT_COLOR;
         self.textShadowColor = TEXT_SHADOW_COLOR;
         self.textShadowOffset = TEXT_SHADOW_OFFSET;
+        self.selectedBGColor = SELECTED_BACKGROUND_COLOR;
+        self.selectedBorderColor = SELECTED_BORDER_COLOR;
+        
+        self.tagAppearanceLookup = [[NSMutableDictionary alloc] init];
         self.showTagMenu = DEFAULT_SHOW_TAG_MENU;
     }
     return self;
@@ -73,6 +85,10 @@
         self.textColor = TEXT_COLOR;
         self.textShadowColor = TEXT_SHADOW_COLOR;
         self.textShadowOffset = TEXT_SHADOW_OFFSET;
+        self.selectedBGColor = SELECTED_BACKGROUND_COLOR;
+        self.selectedBorderColor = SELECTED_BORDER_COLOR;
+
+        self.tagAppearanceLookup = [[NSMutableDictionary alloc] init];
         self.showTagMenu = DEFAULT_SHOW_TAG_MENU;
     }
     return self;
@@ -89,6 +105,12 @@
     else {
         [self setNeedsLayout];
     }
+}
+
+- (void)setTags:(NSArray *)array selectedTags:(NSArray*) selectedTags
+{
+    self.selectedTags = [NSSet setWithArray:selectedTags];
+    [self setTags:array];
 }
 
 - (void)setTagBackgroundColor:(UIColor *)color
@@ -148,8 +170,18 @@
         else {
             tagView = [[DWTagView alloc] init];
         }
-
-
+        
+        DWTagAppearance *appearance = [self.tagAppearanceLookup objectForKey:text];
+        
+        if (!appearance)
+        {
+            BOOL selected = [self.selectedTags containsObject:text];
+            
+            appearance = [self createTagAppearance:selected];
+            
+            [self.tagAppearanceLookup setObject:appearance forKey:text];
+        }
+        
         [tagView updateWithString:text
                              font:self.font
                constrainedToWidth:self.frame.size.width - (self.horizontalPadding * 2)
@@ -171,12 +203,12 @@
         previousFrame = tagView.frame;
         gotPreviousFrame = YES;
 
-        [tagView setBackgroundColor:[self getBackgroundColor]];
+        [tagView setBackgroundColor:appearance.backgroundColor];
         [tagView setCornerRadius:self.cornerRadius];
-        [tagView setBorderColor:self.borderColor];
+        [tagView setBorderColor:appearance.borderColor];
         [tagView setBorderWidth:self.borderWidth];
-        [tagView setTextColor:self.textColor];
-        [tagView setTextShadowColor:self.textShadowColor];
+        [tagView setTextColor:appearance.textColor];
+        [tagView setTextShadowColor:appearance.textShadowColor];
         [tagView setTextShadowOffset:self.textShadowOffset];
         [tagView setTag:tag];
         [tagView setDelegate:self];
@@ -197,6 +229,30 @@
     self.contentSize = sizeFit;
 }
 
+-(DWTagAppearance*) createTagAppearance:(BOOL) selected
+{
+    DWTagAppearance *appearance = [[DWTagAppearance alloc] init];
+    
+    if (selected)
+    {
+        appearance.borderColor = self.selectedBorderColor.CGColor;
+        appearance.textColor = [UIColor whiteColor];
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = self.selectedBGColor;
+        appearance.selected = YES;
+    }
+    else
+    {
+        appearance.borderColor = BORDER_COLOR;
+        appearance.textColor = TEXT_COLOR;
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = BACKGROUND_COLOR;
+        appearance.selected = NO;
+    }
+
+    return appearance;
+}
+
 - (CGSize)fittedSize
 {
     return sizeFit;
@@ -211,23 +267,26 @@
 - (void)touchUpInside:(id)sender
 {
     UIButton *button = (UIButton*)sender;
-    DWTagView *tagView = (DWTagView *)[button superview];
-    [tagView setBackgroundColor:[self getBackgroundColor]];
+    
+    [[button superview] setBackgroundColor:[self getBackgroundColor]];
+    
+    NSString* tagText = button.accessibilityLabel;
     
     if ([self.tagDelegate respondsToSelector:@selector(selectedTag:tagIndex:)]) {
-        [self.tagDelegate selectedTag:tagView.label.text tagIndex:tagView.tag];
+        [self.tagDelegate selectedTag:tagText tagIndex:button.tag];
     }
-
-    if ([self.tagDelegate respondsToSelector:@selector(selectedTag:)]) {
-        [self.tagDelegate selectedTag:tagView.label.text];
-    }
-
+    
+    if(self.tagDelegate && [self.tagDelegate respondsToSelector:@selector(selectedTag:)])
+        [self.tagDelegate selectedTag:tagText];
+    
     if (self.showTagMenu) {
         UIMenuController *menuController = [UIMenuController sharedMenuController];
-        [menuController setTargetRect:tagView.frame inView:self];
+        [menuController setTargetRect:button.frame inView:self];
         [menuController setMenuVisible:YES animated:YES];
-        [tagView becomeFirstResponder];
+        [button becomeFirstResponder];
     }
+    
+    [self toggleTagSelection:tagText];
 }
 
 - (void)touchDragExit:(id)sender
@@ -294,6 +353,31 @@
     lblBackgroundColor = nil;
 }
 
+- (void) toggleTagSelection:(NSString*) tag
+{
+    DWTagAppearance *appearance = [self.tagAppearanceLookup objectForKey:tag];
+    BOOL selected = appearance.selected;
+    
+    if (selected)
+    {
+        appearance.borderColor = BORDER_COLOR;
+        appearance.textColor = TEXT_COLOR;
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = BACKGROUND_COLOR;
+        appearance.selected = NO;
+    }
+    else
+    {
+        appearance.borderColor = self.selectedBorderColor.CGColor;
+        appearance.textColor = [UIColor whiteColor];
+        appearance.textShadowColor = TEXT_SHADOW_COLOR;
+        appearance.backgroundColor = self.selectedBGColor;
+        appearance.selected = YES;
+    }
+
+    [self setNeedsLayout];
+}
+
 #pragma mark - DWTagViewDelegate
 
 - (void)tagViewWantsToBeDeleted:(DWTagView *)tagView {
@@ -308,6 +392,9 @@
 
 @end
 
+@implementation DWTagAppearance
+
+@end
 
 @implementation DWTagView
 

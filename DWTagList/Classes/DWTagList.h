@@ -7,7 +7,21 @@
 
 #import <UIKit/UIKit.h>
 
-@protocol DWTagListDelegate, DWTagViewDelegate;
+@class DWTagView;
+@class DWTagList;
+@class DWTagAppearance;
+
+@protocol DWTagListDelegate <NSObject>
+@optional
+- (void)selectedTag:(NSString *)tagName tagIndex:(NSInteger)tagIndex;
+- (void)selectedTag:(NSString *)tagName;
+- (void)tagListTagsChanged:(DWTagList *)tagList;
+@end
+
+@protocol DWTagViewDelegate <NSObject>
+@required
+- (void)tagViewWantsToBeDeleted:(DWTagView *)tagView;
+@end
 
 @interface DWTagList : UIScrollView
 {
@@ -40,10 +54,23 @@
 - (void)setTagBackgroundColor:(UIColor *)color;
 - (void)setTagHighlightColor:(UIColor *)color;
 - (void)setTags:(NSArray *)array;
+- (void)setTags:(NSArray *)array selectedTags:(NSArray*) selectedTags;
 - (void)display;
 - (CGSize)fittedSize;
 
+
 @end
+
+@interface DWTagAppearance : NSObject
+
+@property(nonatomic, assign) CGColorRef borderColor;
+@property(nonatomic, strong) UIColor *textShadowColor;
+@property(nonatomic, strong) UIColor *textColor;
+@property(nonatomic, strong) UIColor *backgroundColor;
+@property(nonatomic, assign) BOOL selected;
+
+@end
+
 
 @interface DWTagView : UIView
 
@@ -56,6 +83,7 @@
       constrainedToWidth:(CGFloat)maxWidth
                  padding:(CGSize)padding
             minimumWidth:(CGFloat)minimumWidth;
+
 - (void)setLabelText:(NSString*)text;
 - (void)setCornerRadius:(CGFloat)cornerRadius;
 - (void)setBorderColor:(CGColorRef)borderColor;
@@ -63,24 +91,5 @@
 - (void)setTextColor:(UIColor*)textColor;
 - (void)setTextShadowColor:(UIColor*)textShadowColor;
 - (void)setTextShadowOffset:(CGSize)textShadowOffset;
-
-@end
-
-
-@protocol DWTagListDelegate <NSObject>
-
-@optional
-
-- (void)selectedTag:(NSString *)tagName tagIndex:(NSInteger)tagIndex;
-- (void)selectedTag:(NSString *)tagName;
-- (void)tagListTagsChanged:(DWTagList *)tagList;
-
-@end
-
-@protocol DWTagViewDelegate <NSObject>
-
-@required
-
-- (void)tagViewWantsToBeDeleted:(DWTagView *)tagView;
 
 @end

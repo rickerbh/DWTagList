@@ -34,6 +34,12 @@
     [alert show];
 }
 
+- (void) selectedTagView:(DWTagView *)tagView {
+    [tagView setTextColor:[UIColor redColor]];
+    [tagView setNeedsDisplay];
+}
+
+
 - (void)viewDidLoad
 {
     [super viewDidLoad];
@@ -45,13 +51,9 @@
                         @"Tag Label 3",
                         @"Tag Label 4",
                         @"Long long long long long long Tag", nil];
-    [_tagList setTags:_array];
+    [_tagList setTags:_array selectedTags:[NSArray arrayWithObjects:@"Foo", @"Tag Label 4", nil]];
     [_tagList setTagDelegate:self];
 
-    // Customisation
-    [_tagList setCornerRadius:4.0f];
-    [_tagList setBorderColor:[UIColor lightGrayColor].CGColor];
-    [_tagList setBorderWidth:1.0f];
 
     [self.view addSubview:_tagList];
 }
