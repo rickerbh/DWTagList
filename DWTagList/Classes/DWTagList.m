@@ -271,21 +271,34 @@
     [[button superview] setBackgroundColor:[self getBackgroundColor]];
     
     NSString* tagText = button.accessibilityLabel;
-    
-    if ([self.tagDelegate respondsToSelector:@selector(selectedTag:tagIndex:)]) {
-        [self.tagDelegate selectedTag:tagText tagIndex:button.tag];
+  
+    BOOL selected = [self.selectedTags containsObject:tagText];
+
+  if (selected) {
+    if ([self.tagDelegate respondsToSelector:@selector(deselectedTag:tagIndex:)]) {
+      [self.tagDelegate deselectedTag:tagText tagIndex:button.tag];
     }
     
-    if(self.tagDelegate && [self.tagDelegate respondsToSelector:@selector(selectedTag:)])
-        [self.tagDelegate selectedTag:tagText];
+    if(self.tagDelegate && [self.tagDelegate respondsToSelector:@selector(deselectedTag:)]) {
+      [self.tagDelegate deselectedTag:tagText];
+    }
+  } else {
+    if ([self.tagDelegate respondsToSelector:@selector(selectedTag:tagIndex:)]) {
+      [self.tagDelegate selectedTag:tagText tagIndex:button.tag];
+    }
+    
+    if(self.tagDelegate && [self.tagDelegate respondsToSelector:@selector(selectedTag:)]) {
+      [self.tagDelegate selectedTag:tagText];
+    }
     
     if (self.showTagMenu) {
-        UIMenuController *menuController = [UIMenuController sharedMenuController];
-        [menuController setTargetRect:button.frame inView:self];
-        [menuController setMenuVisible:YES animated:YES];
-        [button becomeFirstResponder];
+      UIMenuController *menuController = [UIMenuController sharedMenuController];
+      [menuController setTargetRect:button.frame inView:self];
+      [menuController setMenuVisible:YES animated:YES];
+      [button becomeFirstResponder];
     }
-    
+  }
+  
     [self toggleTagSelection:tagText];
 }
 

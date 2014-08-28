@@ -27,11 +27,21 @@
 - (void)selectedTag:(NSString *)tagName tagIndex:(NSInteger)tagIndex
 {
     UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Message"
-                                                    message:[NSString stringWithFormat:@"You tapped tag %@ at index %ld", tagName,(long)tagIndex]
+                                                    message:[NSString stringWithFormat:@"You selected tag %@ at index %ld", tagName,(long)tagIndex]
                                                    delegate:nil
                                           cancelButtonTitle:@"Ok"
                                           otherButtonTitles:nil];
     [alert show];
+}
+
+- (void)deselectedTag:(NSString *)tagName tagIndex:(NSInteger)tagIndex
+{
+  UIAlertView *alert = [[UIAlertView alloc] initWithTitle:@"Message"
+                                                  message:[NSString stringWithFormat:@"You deselected tag %@ at index %ld", tagName,(long)tagIndex]
+                                                 delegate:nil
+                                        cancelButtonTitle:@"Ok"
+                                        otherButtonTitles:nil];
+  [alert show];
 }
 
 - (void) selectedTagView:(DWTagView *)tagView {

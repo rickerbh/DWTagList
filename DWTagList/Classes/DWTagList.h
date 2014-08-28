@@ -15,6 +15,8 @@
 @optional
 - (void)selectedTag:(NSString *)tagName tagIndex:(NSInteger)tagIndex;
 - (void)selectedTag:(NSString *)tagName;
+- (void)deselectedTag:(NSString *)tagName tagIndex:(NSInteger)tagIndex;
+- (void)deselectedTag:(NSString *)tagName;
 - (void)tagListTagsChanged:(DWTagList *)tagList;
 @end
 
