@@ -155,6 +155,7 @@
             [tagViews addObject:subview];
         }
         [subview removeFromSuperview];
+      [self.tagAppearanceLookup removeAllObjects];
     }
 
     CGRect previousFrame = CGRectZero;
