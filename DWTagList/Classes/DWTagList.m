@@ -82,13 +82,7 @@
 {
     textArray = [[NSArray alloc] initWithArray:array];
     sizeFit = CGSizeZero;
-    if (automaticResize) {
-        [self display];
-        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, sizeFit.width, sizeFit.height);
-    }
-    else {
-        [self display];
-    }
+    [self display];
 }
 
 - (void)setTagBackgroundColor:(UIColor *)color
@@ -119,9 +113,19 @@
     }
 }
 
+- (void)setFont:(UIFont *)font
+{
+    if (font != _font) {
+        _font = font;
+        [self display];
+    }
+}
+
 - (void)layoutSubviews
 {
     [super layoutSubviews];
+
+    [self display];
 }
 
 - (void)display
@@ -222,11 +226,26 @@
 
     sizeFit = CGSizeMake(self.frame.size.width, previousFrame.origin.y + previousFrame.size.height + self.bottomMargin + 1.0f);
     self.contentSize = sizeFit;
+    [self invalidateIntrinsicContentSize];
+
+    if (automaticResize) {
+        self.frame = CGRectMake(self.frame.origin.x, self.frame.origin.y, sizeFit.width, sizeFit.height);
+    }
 }
 
 - (CGSize)fittedSize
 {
     return sizeFit;
+}
+
+- (CGSize)intrinsicContentSize
+{
+    if (automaticResize) {
+        return CGSizeMake(sizeFit.width, sizeFit.height);
+    }
+    else {
+        return CGSizeMake(UIViewNoIntrinsicMetric, UIViewNoIntrinsicMetric);
+    }
 }
 
 - (void)scrollToBottomAnimated:(BOOL)animated
