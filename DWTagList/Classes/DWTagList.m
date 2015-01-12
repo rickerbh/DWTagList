@@ -18,7 +18,7 @@
 #define TEXT_COLOR [UIColor darkGrayColor]
 #define TEXT_SHADOW_COLOR [UIColor clearColor]
 #define TEXT_SHADOW_OFFSET CGSizeMake(0.0f, 0.0f)
-#define BORDER_COLOR [UIColor lightGrayColor].CGColor
+#define BORDER_COLOR [UIColor lightGrayColor]
 #define BORDER_WIDTH 1.0f
 #define HIGHLIGHTED_BACKGROUND_COLOR [UIColor colorWithRed:0.40 green:0.80 blue:1.00 alpha:0.5]
 #define DEFAULT_AUTOMATIC_RESIZE NO
@@ -204,7 +204,7 @@
 
         [tagView setBackgroundColor:appearance.backgroundColor];
         [tagView setCornerRadius:self.cornerRadius];
-        [tagView setBorderColor:appearance.borderColor];
+        [tagView setBorderColor:appearance.borderColor.CGColor];
         [tagView setBorderWidth:self.borderWidth];
         [tagView setTextColor:appearance.textColor];
         [tagView setTextShadowColor:appearance.textShadowColor];
@@ -234,7 +234,7 @@
     
     if (selected)
     {
-        appearance.borderColor = self.selectedBorderColor.CGColor;
+        appearance.borderColor = self.selectedBorderColor;
         appearance.textColor = [UIColor whiteColor];
         appearance.textShadowColor = TEXT_SHADOW_COLOR;
         appearance.backgroundColor = self.selectedBGColor;
@@ -270,10 +270,10 @@
 
 - (void)touchUpInside:(id)sender
 {
-    UIButton *button = (UIButton*)sender;
-    
-    [[button superview] setBackgroundColor:[self getBackgroundColor]];
-    
+  UIButton *button = (UIButton*)sender;
+  DWTagView *tagView = (DWTagView *)[button superview];
+  [tagView setBackgroundColor:[self getBackgroundColor]];
+
     NSString* tagText = button.accessibilityLabel;
   
     BOOL selected = [self.selectedTags containsObject:tagText];
@@ -335,7 +335,7 @@
     [self display];
 }
 
-- (void)setBorderColor:(CGColorRef)borderColor
+- (void)setBorderColor:(UIColor*)borderColor
 {
     _borderColor = borderColor;
     [self display];
@@ -387,14 +387,14 @@
     }
     else
     {
-        appearance.borderColor = self.selectedBorderColor.CGColor;
+        appearance.borderColor = self.selectedBorderColor;
         appearance.textColor = [UIColor whiteColor];
         appearance.textShadowColor = TEXT_SHADOW_COLOR;
         appearance.backgroundColor = self.selectedBGColor;
         appearance.selected = YES;
     }
 
-    [self setNeedsLayout];
+    [self display];
 }
 
 #pragma mark - DWTagViewDelegate
@@ -436,7 +436,7 @@
         
         [self.layer setMasksToBounds:YES];
         [self.layer setCornerRadius:CORNER_RADIUS];
-        [self.layer setBorderColor:BORDER_COLOR];
+        [self.layer setBorderColor:BORDER_COLOR.CGColor];
         [self.layer setBorderWidth:BORDER_WIDTH];
     }
     return self;

@@ -47,7 +47,7 @@
 @property (nonatomic, assign) CGFloat verticalPadding;
 @property (nonatomic, assign) CGFloat minimumWidth;
 @property (nonatomic, assign) CGFloat cornerRadius;
-@property (nonatomic, assign) CGColorRef borderColor;
+@property (nonatomic, strong) UIColor *borderColor;
 @property (nonatomic, assign) CGFloat borderWidth;
 @property (nonatomic, strong) UIColor *textColor;
 @property (nonatomic, strong) UIColor *textShadowColor;
@@ -66,7 +66,7 @@
 
 @interface DWTagAppearance : NSObject
 
-@property(nonatomic, assign) CGColorRef borderColor;
+@property(nonatomic, assign) UIColor *borderColor;
 @property(nonatomic, strong) UIColor *textShadowColor;
 @property(nonatomic, strong) UIColor *textColor;
 @property(nonatomic, strong) UIColor *backgroundColor;

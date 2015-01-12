@@ -64,6 +64,10 @@
     [_tagList setTags:_array selectedTags:[NSArray arrayWithObjects:@"Foo", @"Tag Label 4", nil]];
     [_tagList setTagDelegate:self];
 
+    // Customisation
+    [_tagList setCornerRadius:4.0f];
+    [_tagList setBorderColor:[UIColor lightGrayColor]];
+    [_tagList setBorderWidth:1.0f];
 
     [self.view addSubview:_tagList];
 }
