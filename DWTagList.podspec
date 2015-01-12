@@ -1,6 +1,6 @@
 Pod::Spec.new do |s|
   s.name         = "DWTagList"
-  s.version      = "0.0.5"
+  s.version      = "0.0.6"
   s.summary      = "Create a list of tags from an NSArray to be show in a view with customisable fonts, colors etc."
   s.homepage     = "https://github.com/domness/DWTagList"
   s.license      = 'MIT'

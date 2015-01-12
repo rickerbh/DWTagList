@@ -59,6 +59,7 @@
 - (void)setTags:(NSArray *)array selectedTags:(NSArray*) selectedTags;
 - (void)display;
 - (CGSize)fittedSize;
+- (void)scrollToBottomAnimated:(BOOL)animated;
 
 
 @end
