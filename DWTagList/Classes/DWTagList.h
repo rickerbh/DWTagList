@@ -25,6 +25,12 @@
 - (void)tagViewWantsToBeDeleted:(DWTagView *)tagView;
 @end
 
+typedef NS_ENUM(NSInteger, DWTagAlignment) {
+    DWTagAlignmentLeft = 0,
+    DWTagAlignmentCenter = 1
+};
+
+
 @interface DWTagList : UIScrollView
 {
     UIView      *view;
@@ -52,6 +58,7 @@
 @property (nonatomic, strong) UIColor *textColor;
 @property (nonatomic, strong) UIColor *textShadowColor;
 @property (nonatomic, assign) CGSize textShadowOffset;
+@property (nonatomic, assign) DWTagAlignment tagAlignment;
 
 - (void)setTagBackgroundColor:(UIColor *)color;
 - (void)setTagHighlightColor:(UIColor *)color;
